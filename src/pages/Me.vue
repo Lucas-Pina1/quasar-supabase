@@ -9,12 +9,11 @@
 <script>
 import useAuthUser from '../composables/UserAuthUser'
 
-export default ({
+export default {
   name: 'PageMe'
-})
+}
 </script>
 
 <script setup>
 const { user } = useAuthUser()
-
 </script>

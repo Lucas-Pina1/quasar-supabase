@@ -11,28 +11,26 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
+        <q-toolbar-title> Quasar App </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-btn-dropdown flat color="white" icon="person" >
+          <q-list>
+            <q-item clickable v-close-popup>
+              <q-item-section>
+                <q-item-label @click="handleLogout">Logout</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
       <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
+        <q-item-label header> Essential Links </q-item-label>
 
         <EssentialLink
-          v-for="link in essentialLinks"
+          v-for="link in linksList"
           :key="link.title"
           v-bind="link"
         />
@@ -46,8 +44,35 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { ref } from 'vue'
+import useAuthUser from '../composables/UserAuthUser'
+import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
+import EssentialLink from '../components/EssentialLink.vue'
+
+export default {
+  name: 'MainLayout'
+}
+</script>
+
+<script setup>
+const router = useRouter()
+
+const $q = useQuasar()
+
+const { logout } = useAuthUser()
+
+const handleLogout = async () => {
+  $q.dialog({
+    title: 'Logout',
+    message: 'Do you really want to leave ?',
+    cancel: true,
+    persistent: true
+  }).onOk(async () => {
+    await logout()
+    router.replace({ name: 'Login' })
+  })
+}
 
 const linksList = [
   {
@@ -94,23 +119,9 @@ const linksList = [
   }
 ]
 
-export default defineComponent({
-  name: 'MainLayout',
+const leftDrawerOpen = ref(false)
 
-  components: {
-    EssentialLink
-  },
-
-  setup () {
-    const leftDrawerOpen = ref(false)
-
-    return {
-      essentialLinks: linksList,
-      leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
-    }
-  }
-})
+function toggleLeftDrawer () {
+  leftDrawerOpen.value = !leftDrawerOpen.value
+}
 </script>
